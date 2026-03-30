@@ -1,0 +1,299 @@
+﻿@model ShipmentManagement.ViewModels.Shipment.ShipmentDetailsViewModel
+@{
+    var s = Model.Shipment;
+    ViewData["Title"] = $"Details — {s.ShipmentCode}";
+    ViewData["Breadcrumb"] = $@"
+        <a href='/Dashboard'>Home</a>
+        <span class='bc-sep'>›</span>
+        <a href='/Shipment'>Shipment List</a>
+        <span class='bc-sep'>›</span>
+        <span class='bc-current'>{s.ShipmentCode}</span>
+    ";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">@s.ShipmentCode</div>
+        <div class="page-sub">
+            @s.Customer?.CustomerName — @s.SourcePort → @s.DestinationPort
+        </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+        @if (s.Status != ShipmentManagement.Models.Enums.ShipmentStatus.Delivered)
+        {
+            <a asp-action="UpdateStatus" asp-route-id="@s.Id"
+                   class="btn-primary-custom">
+                <i class="bi bi-arrow-repeat"></i> Update Status
+            </a>
+        }
+        <a asp-action="Index" class="btn-secondary-custom">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div style="display:flex;justify-content:space-between;
+                align-items:center;margin-bottom:16px;">
+                <span class="form-section-label" style="margin:0;border:none;">
+                    📋 Shipment Information
+                </span>
+                @switch (s.Status.ToString())
+                {
+                    case "Delivered":
+                        <span class="badge badge-success">● Delivered</span>
+                        break;
+                    case "InTransit":
+                        <span class="badge badge-info">⟶ In Transit</span>
+                        break;
+                    case "Delayed":
+                        <span class="badge badge-danger">⚠ Delayed</span>
+                        break;
+                    case "PortArrival":
+                        <span class="badge badge-warning">⚓ Port Arrival</span>
+                        break;
+                    default:
+                        <span class="badge badge-neutral">○ @s.Status</span>
+                        break;
+                }
+            </div>
+            <div class="row g-3">
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Shipment ID
+                    </div>
+                    <div class="td-mono">@s.ShipmentCode</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Booking Date
+                    </div>
+                    <div>@s.BookingDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Type
+                    </div>
+                    <div>@s.ShipmentType</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Cargo
+                    </div>
+                    <div>@s.CargoType</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Weight
+                    </div>
+                    <div class="font-mono">@s.WeightMT.ToString("N0") MT</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Container No.
+                    </div>
+                    <div class="font-mono">@(s.ContainerNumber ?? "—")</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Ship
+                    </div>
+                    <div>
+                        @s.Ship?.ShipName
+                        <span style="color:var(--text-dim);font-size:11px">
+                            (@s.Ship?.ShipCode)
+                        </span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Departure
+                    </div>
+                    <div>@s.DepartureDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        ETA
+                    </div>
+                    <div style="@(s.ArrivalDate < DateTime.Now && s.Status.ToString() != "Delivered" ? "color:var(--danger)" : "")">
+                        @(s.ArrivalDate.HasValue ? s.ArrivalDate.Value.ToString("dd MMM yyyy") : "—")
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(s.SpecialInstructions))
+            {
+                <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);
+                    border-radius:7px;border:1px solid var(--border);">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:6px;">
+                        Special Instructions
+                    </div>
+                    <div style="font-size:13px;color:var(--text-dim)">
+                        @s.SpecialInstructions
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="card mb-3">
+            <span class="form-section-label"
+                  style="display:block;margin-bottom:14px;">
+                👤 Customer Details
+            </span>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Name
+                    </div>
+                    <div><b>@s.Customer?.CustomerName</b></div>
+                </div>
+                <div class="col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Company
+                    </div>
+                    <div>@s.Customer?.CompanyName</div>
+                </div>
+                <div class="col-md-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:4px;">
+                        Email
+                    </div>
+                    <div style="font-size:12px">@s.Customer?.Email</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.StatusLogs.Any())
+        {
+            <div class="card">
+                <span class="form-section-label"
+                      style="display:block;margin-bottom:14px;">
+                    📋 Status History
+                </span>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Remarks</th>
+                            <th>Updated By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.StatusLogs)
+                        {
+                            <tr>
+                                <td style="font-size:12px;white-space:nowrap">
+                                    @log.UpdatedDate.ToString("dd MMM yyyy HH:mm")
+                                </td>
+                                <td>
+                                    <span class="badge badge-info">
+                                        @log.Status
+                                    </span>
+                                </td>
+                                <td style="font-size:12px">
+                                    @(log.CurrentLocation ?? "—")
+                                </td>
+                                <td style="font-size:12px;color:var(--text-dim)">
+                                    @(log.Remarks ?? "—")
+                                </td>
+                                <td style="font-size:11px;color:var(--text-muted)">
+                                    @(log.UpdatedBy ?? "—")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <span class="form-section-label"
+                  style="display:block;margin-bottom:16px;">
+                📍 Shipment Timeline
+            </span>
+
+            @if (!Model.TrackingSteps.Any())
+            {
+                <p style="color:var(--text-muted);font-size:13px">
+                    No tracking steps yet.
+                </p>
+            }
+            else
+            {
+                <div class="timeline">
+                    @for (int i = 0; i < Model.TrackingSteps.Count; i++)
+                    {
+                        var step = Model.TrackingSteps[i];
+                        var isLast = i == Model.TrackingSteps.Count - 1;
+
+                        <div class="timeline-step">
+                            <div class="timeline-left">
+                                <div class="tl-dot @step.StepStatus">
+                                    @if (step.StepStatus == "done")
+                                    {
+                                        <i class="bi bi-check"></i>
+                                    }
+                                    else if (step.StepStatus == "current")
+                                    {
+
+                                        <i class="bi bi-arrow-right"></i>
+                                    }
+                                    else
+                                    {
+
+                                        <i class="bi bi-circle"></i>
+                                    }
+                                </div>
+                                @if (!isLast)
+                                {
+                                    <div class="tl-line @step.StepStatus"></div>
+                                }
+                            </div>
+                            <div class="timeline-content">
+                                <div class="tl-title">@step.StepTitle</div>
+                                <div class="tl-date">
+                                    @step.StepDate.ToString("dd MMM yyyy · hh:mm tt")
+                                </div>
+                                @if (!string.IsNullOrEmpty(step.StepLocation))
+                                {
+                                    <div class="tl-loc">📍 @step.StepLocation</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

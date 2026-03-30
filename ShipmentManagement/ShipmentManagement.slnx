@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../ShipmentManagement.Tests/ShipmentManagement.Tests.csproj" Id="886168ca-f102-407d-b019-7dd9ab2138d0" />
+  <Project Path="ShipmentManagement.csproj" />
+</Solution>

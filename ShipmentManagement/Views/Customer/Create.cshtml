@@ -1,0 +1,88 @@
+﻿@model ShipmentManagement.ViewModels.Customer.CustomerCreateViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Customer" : "Add Customer";
+    ViewData["FormTitle"] = string.Concat(
+        "<a href='/Dashboard'>Home</a>",
+        "<span class='bc-sep'>›</span>",
+        "<a href='/Customer'>Customer Master</a>",
+        "<span class='bc-sep'>›</span>",
+        "<span class='bc-current'>",
+        isEdit ? "Edit Customer" : "Add New Customer",
+        "</span>"
+    );
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">@(isEdit ? "Edit Customer" : "Add New Customer")</div>
+        <div class="page-sub">@(isEdit ? "Update customer details" : "Register a new client account")</div>
+    </div>
+    <a asp-action="Index" class="btn-secondary-custom">
+        <i class="bi bi-arrow-left"></i> Back to Customers
+    </a>
+</div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post" class="page-fade">
+    @Html.AntiForgeryToken()
+    @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+
+    <div class="form-card">
+        <span class="form-section-label">👤 Customer Information</span>
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label class="field-label" asp-for="CustomerCode">Customer Code</label>
+                <input asp-for="CustomerCode" class="field-input"
+                       placeholder="e.g. C006" style="text-transform:uppercase" />
+                <span asp-validation-for="CustomerCode" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-5">
+                <label class="field-label" asp-for="CustomerName">Customer Name</label>
+                <input asp-for="CustomerName" class="field-input" placeholder="Full name" />
+                <span asp-validation-for="CustomerName" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="CompanyName">Company Name</label>
+                <input asp-for="CompanyName" class="field-input" placeholder="Company name" />
+                <span asp-validation-for="CompanyName" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="field-label" asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" class="field-input"
+                       placeholder="email@company.com" />
+                <span asp-validation-for="Email" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="field-label" asp-for="Phone">Phone</label>
+                <input asp-for="Phone" class="field-input" placeholder="+91 XXX XXX XXXX" maxlength="10" />
+                <span asp-validation-for="Phone" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <span class="form-section-label">📍 Address Details</span>
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                <label class="field-label" asp-for="Address">Full Address</label>
+                <textarea asp-for="Address" class="field-textarea"
+                          placeholder="Street address, building..."></textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="field-label" asp-for="City">City</label>
+                <input asp-for="City" class="field-input" placeholder="City" />
+            </div>
+            <div class="col-md-6">
+                <label class="field-label" asp-for="StateCountry">State / Country</label>
+                <input asp-for="StateCountry" class="field-input"
+                       placeholder="State / Country" />
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-secondary-custom">✕ Cancel</a>
+            <button type="reset" class="btn-secondary-custom">🔄 Reset</button>
+            <button type="submit" class="btn-primary-custom">
+                @(isEdit ? "💾 Update Customer" : "✅ Save Customer")
+            </button>
+        </div>
+    </div>
+</form>

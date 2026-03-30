@@ -1,0 +1,186 @@
+﻿@model ShipmentManagement.ViewModels.Shipment.ShipmentCreateViewModel
+@{
+    ViewData["Title"] = "Shipment Booking";
+    ViewData["FormTitle"] = @"
+        <a href='/Dashboard'>Home</a>
+        <span class='bc-sep'>›</span>
+        <span class='bc-current'>Shipment Booking</span>
+    ";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Shipment Booking</div>
+        <div class="page-sub">Fill in all details to create a new shipment booking</div>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" class="page-fade">
+    @Html.AntiForgeryToken()
+
+    <div class="form-card">
+
+        <span class="form-section-label">📋 Shipment Information</span>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="field-label">Shipment ID</label>
+                <div class="field-auto">@Model.ShipmentCode</div>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="BookingDate">Booking Date</label>
+                <input asp-for="BookingDate" type="date" class="field-input" />
+                <span asp-validation-for="BookingDate" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="ShipmentType">Shipment Type</label>
+                <select asp-for="ShipmentType"
+                        asp-items="Model.ShipmentTypes"
+                        class="field-select">
+                    <option value="">— Select Type —</option>
+                </select>
+                <span asp-validation-for="ShipmentType" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="CargoType">Cargo Type</label>
+                <select asp-for="CargoType"
+                        asp-items="Model.CargoTypes"
+                        class="field-select">
+                    <option value="">— Select Cargo —</option>
+                </select>
+                <span asp-validation-for="CargoType" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="WeightMT">Weight (MT)</label>
+                <input asp-for="WeightMT" type="number" step="0.01"
+                       class="field-input" placeholder="e.g. 2500" />
+                <span asp-validation-for="WeightMT" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="ContainerNumber">Container Number</label>
+                <input asp-for="ContainerNumber" type="text"
+                       class="field-input" placeholder="e.g. MSKU1234567" />
+            </div>
+        </div>
+
+        <span class="form-section-label">🚢 Ship Details</span>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="field-label" asp-for="ShipId">Ship Name</label>
+                <select asp-for="ShipId"
+                        asp-items="Model.Ships"
+                        class="field-select"
+                        id="shipSelect">
+                    <option value="">— Select Ship —</option>
+                </select>
+                <span asp-validation-for="ShipId" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label">Ship Code</label>
+                <div class="field-auto" id="shipCodeDisplay">—</div>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label">Capacity</label>
+                <div class="field-auto" id="shipCapDisplay">—</div>
+            </div>
+        </div>
+
+        <span class="form-section-label">👤 Customer Details</span>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="field-label" asp-for="CustomerId">Customer Name</label>
+                <select asp-for="CustomerId"
+                        asp-items="Model.Customers"
+                        class="field-select"
+                        id="customerSelect">
+                    <option value="">— Select Customer —</option>
+                </select>
+                <span asp-validation-for="CustomerId" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label">Email</label>
+                <div class="field-auto" id="custEmailDisplay">—</div>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label">Phone</label>
+                <div class="field-auto" id="custPhoneDisplay">—</div>
+            </div>
+        </div>
+
+        <span class="form-section-label">🗺 Route Information</span>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label class="field-label" asp-for="SourcePort">Source Port</label>
+                <select asp-for="SourcePort"
+                        asp-items="Model.Ports"
+                        class="field-select">
+                    <option value="">— Select Source —</option>
+                </select>
+                <span asp-validation-for="SourcePort" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label" asp-for="DestinationPort">Destination Port</label>
+                <select asp-for="DestinationPort"
+                        asp-items="Model.Ports"
+                        class="field-select">
+                    <option value="">— Select Destination —</option>
+                </select>
+                <span asp-validation-for="DestinationPort" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label" asp-for="DepartureDate">Departure Date</label>
+                <input asp-for="DepartureDate" type="date" class="field-input" />
+                <span asp-validation-for="DepartureDate" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="field-label" asp-for="ArrivalDate">Estimated Arrival</label>
+                <input asp-for="ArrivalDate" type="date" class="field-input" />
+            </div>
+            <div class="col-12">
+                <label class="field-label" asp-for="SpecialInstructions">Special Instructions</label>
+                <textarea asp-for="SpecialInstructions"
+                          class="field-textarea"
+                          placeholder="Any special handling, customs notes..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/Dashboard" class="btn-secondary-custom">✕ Cancel</a>
+            <button type="reset" class="btn-secondary-custom">🔄 Reset</button>
+            <button type="submit" class="btn-primary-custom">✅ Submit Booking</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Ship data from server (for auto-fill)
+        const shipData = {
+            @foreach (var s in Model.Ships)
+            {
+                    var parts = s.Text.Split('—');
+                    @:[@s.Value]: { code: '@s.Text.Split('(')[1]?.Split(')')[0]', cap: '@(parts.Length > 1 ? parts[1].Trim() : "")' },
+            }
+        };
+
+        document.getElementById('shipSelect')?.addEventListener('change', function () {
+            const val = this.value;
+            const info = shipData[val];
+            document.getElementById('shipCodeDisplay').textContent = info ? info.code : '—';
+            document.getElementById('shipCapDisplay').textContent  = info ? info.cap  : '—';
+        });
+
+        const CustomerData = {
+            @foreach (var c in Model.CustomerDataList)
+            {
+                    @:"@c.Id": {email: "@c.Email",phone: "@c.Phone",company: "@c.Company"},
+            }
+        };
+
+        document.getElementById('customerSelect')?.addEventListener('change', function () {
+            const val = this.value;
+            const info = CustomerData[val];
+            document.getElementById('custEmailDisplay').textContent = info ? info.email : '—';
+            document.getElementById('custPhoneDisplay').textContent  = info ? info.phone  : '—';
+        });
+    </script>
+}

@@ -1,0 +1,199 @@
+﻿@model ShipmentManagement.ViewModels.Shipment.ShipmentListViewModel 
+@using ShipmentManagement.Models.Enums
+@{
+    ViewData["Title"] = "Shipment List";
+    ViewData["Breadcrumb"] = @"
+        <a href='/Dashboard'>Home</a>
+        <span class='bc-sep'>›</span>
+        <span class='bc-current'>Shipment List</span>
+    ";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Shipment Tracking</div>
+        <div class="page-sub">Monitor and manage all shipments</div>
+    </div>
+    <a asp-action="Create" class="btn-primary-custom">
+        <i class="bi bi-plus-lg"></i> New Booking
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--text-dim)">
+            <div class="stat-value">@Model.TotalCount</div>
+            <div class="stat-label">Total</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--amber)">
+            <div class="stat-value" style="color:var(--amber)">@Model.PendingCount</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--cyan)">
+            <div class="stat-value" style="color:var(--cyan)">@Model.InTransitCount</div>
+            <div class="stat-label">In Transit</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--danger)">
+            <div class="stat-value" style="color:var(--danger)">@Model.DelayedCount</div>
+            <div class="stat-label">Delayed</div>
+        </div>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="mb-3">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div class="search-wrap" style="flex:1;min-width:200px;">
+            <i class="bi bi-search"></i>
+            <input type="text" name="search" value="@Model.SearchTerm" class="search-input" style="width:100%" placeholder="Search by ID or Customer..." />
+        </div>
+        <select name="filterStatus" class="filter-select" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="Pending" selected="@(Model.FilterStatus == "Pending")">Pending</option>
+            <option value="Loaded" selected="@(Model.FilterStatus == "Loaded")">Loaded</option>
+            <option value="InTransit" selected="@(Model.FilterStatus == "InTransit")">In Transit</option>
+            <option value="PortArrival" selected="@(Model.FilterStatus == "PortArrival")">Port Arrival</option>
+            <option value="CustomsClearance" selected="@(Model.FilterStatus == "CustomsClearance")">Customs</option>
+            <option value="Delivered" selected="@(Model.FilterStatus == "Delivered")">Delivered</option>
+            <option value="Delayed" selected="@(Model.FilterStatus == "Delayed")">Delayed</option>
+        </select>
+        <select name="filterType" class="filter-select" onchange="this.form.submit()">
+            <option value="">All Types</option>
+            <option value="Export" selected="@(Model.FilterType == "Export")">Export</option>
+            <option value="Import" selected="@(Model.FilterType == "Import")">Import</option>
+            <option value="Transshipment" selected="@(Model.FilterType == "Transshipment")">Transshipment</option>
+        </select>
+        <button type="submit" class="btn-secondary-custom">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
+        @if (!string.IsNullOrEmpty(Model.SearchTerm) || 
+                     !string.IsNullOrEmpty(Model.FilterStatus) ||
+                     !string.IsNullOrEmpty(Model.FilterType))
+        {
+            <a asp-action="Index" class="btn-secondary-custom">
+                <i class="bi bi-x"></i> Clear
+            </a>
+        }
+    </div>
+</form>
+
+<div class="table-card page-fade">
+    <div class="table-toolbar">
+        <span class="table-toolbar-title">
+            All Shipments
+            <span style="color:var(--text-muted);font-size:12px;font-weight:400;"> — @Model.Shipments.Count results </span>
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Shipment ID</th>
+                    <th>Customer</th>
+                    <th>Ship</th>
+                    <th>Route</th>
+                    <th>Type</th>
+                    <th>Weight</th>
+                    <th>Status</th>
+                    <th>ETA</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Shipments.Any())
+                {
+                    <tr>
+                        <td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">
+                            <i class="bi bi-box-seam" style="font-size:32px;display:block;margin-bottom:10px"></i>
+                            No shipments found.
+                            <a asp-action="Create" style="color:var(--amber)"> Create your first booking</a>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var s in Model.Shipments)
+                    {
+                        <tr>
+                            <td><span class="td-mono">@s.ShipmentCode</span></td>
+                            <td>
+                                <b>@s.Customer?.CustomerName</b>
+                                <div class="td-sub">@s.Customer?.CompanyName</div>
+                            </td>
+                            <td>@s.Ship?.ShipName</td>
+                            <td style="font-size:12px"> 
+                                @s.SourcePort
+                                <span style="color:var(--amber)"> → </span>
+                                @s.DestinationPort
+                            </td>
+                            <td>
+                                <span class="badge badge-neutral">
+                                    @s.ShipmentType
+                                </span>
+                            </td>
+                            <td class="font-mono">@s.WeightMT.ToString("N0") MT</td>
+                            <td>
+                                @switch (s.Status.ToString())
+                                {
+                                    case "Delivered":
+                                        <span class="badge badge-success">● Delivered</span>
+                                        break;
+                                    case "InTransit":
+                                        <span class="badge badge-info">⟶ In Transit</span>
+                                        break;
+                                    case "PortArrival":
+                                        <span class="badge badge-warning">⚓ Port Arrival</span>
+                                        break;
+                                    case "Delayed":
+                                        <span class="badge badge-danger">⚠ Delayed</span>
+                                        break;
+                                    case "CustomsClearance":
+                                        <span class="badge badge-warning">📋 Customs</span>
+                                        break;
+                                    case "Loaded":
+                                        <span class="badge badge-info">📦 Loaded</span>
+                                        break;
+                                    default:
+                                        <span class="badge badge-neutral">○ Pending</span>
+                                        break;
+                                }
+                            </td>
+                            <td style="font-size:12px;color:var(--text-dim)">
+                                @(s.ArrivalDate.HasValue? s.ArrivalDate.Value.ToString("dd MMM yyyy") : "—")
+                                @if (s.ArrivalDate.HasValue && s.ArrivalDate.Value < DateTime.Now && s.Status != ShipmentStatus.Delivered)
+                                {
+                                    <span style="color:var(--danger);font-size:10px; display:block">⚠ Overdue</span>
+                                }
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                                    <a asp-action="Details" asp-route-id="@s.Id" class="btn-view">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    @if (s.Status != ShipmentStatus.Delivered)
+                                    {
+                                        <a asp-action="UpdateStatus" asp-route-id="@s.Id" class="btn-edit">
+                                            <i class="bi bi-arrow-repeat"></i> Update
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-wrap">
+        <span class="pag-info">
+            Showing @Model.Shipments.Count of @Model.TotalCount shipments
+        </span>
+    </div>
+</div>

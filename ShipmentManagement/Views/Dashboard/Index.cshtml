@@ -1,0 +1,157 @@
+﻿@model ShipmentManagement.ViewModels.Dashboard.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="stat-icon bg-info-subtle rounded mb-3">📦</div>
+                <h2 class="fw-bold mb-0">@Model.TotalShipments</h2>
+                <p class="text-muted small mb-0">Total Shipments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="stat-icon bg-warning-subtle rounded mb-3">🕐</div>
+                <h2 class="fw-bold mb-0">@Model.Upcoming</h2>
+                <p class="text-muted small mb-0">Upcoming</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="stat-icon bg-primary-subtle rounded mb-3">🚢</div>
+                <h2 class="fw-bold mb-0">@Model.Ongoing</h2>
+                <p class="text-muted small mb-0">Ongoing</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="stat-icon bg-success-subtle rounded mb-3">✅</div>
+                <h2 class="fw-bold mb-0">@Model.Delivered</h2>
+                <p class="text-muted small mb-0">Delivered</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">Shipment Trend</h6>
+                <p class="text-muted small mb-3">Monthly shipments over the year</p>
+                <canvas id="lineChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">Status Distribution</h6>
+                <p class="text-muted small mb-3">Shipment status breakdown</p>
+                <canvas id="pieChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bar Chart + Activity -->
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">Ship-wise Volume</h6>
+                <p class="text-muted small mb-3">Top vessels by shipment count</p>
+                <canvas id="barChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">Recent Activity</h6>
+                <ul class="list-unstyled mb-0">
+                    @foreach (var item in Model.RecentActivities)
+                    {
+                        <li class="d-flex gap-2 mb-3">
+                            <span class="activity-dot mt-1 flex-shrink-0"
+                                  style="width:8px;height:8px;border-radius:50%;
+                            background:@item.Color;display:inline-block;"></span>
+                            <div>
+                                <div class="small">@item.Message</div>
+                                <div class="text-muted" style="font-size:11px">@item.TimeAgo</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data from Model
+        const monthLabels  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTrend.Select(m => m.Month)));
+        const monthCounts  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTrend.Select(m => m.Shipments)));
+        const monthDeliv   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTrend.Select(m => m.Delivered)));
+        const statusLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusData.Select(s => s.Status)));
+        const statusCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusData.Select(s => s.Count)));
+        const shipLabels   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ShipWiseData.Select(s => s.ShipName)));
+        const shipCounts   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ShipWiseData.Select(s => s.Count)));
+
+        // Line Chart
+        new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+        labels: monthLabels,
+        datasets: [
+        { label: 'Shipments', data: monthCounts, borderColor: '#f0a500', backgroundColor: 'rgba(240,165,0,0.08)', tension: 0.4, fill: true },
+        { label: 'Delivered', data: monthDeliv,  borderColor: '#2ecc8a', tension: 0.4, borderDash: [4, 3] }
+        ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+        labels: statusLabels,
+        datasets: [{
+        data: statusCounts,
+        backgroundColor: ['#2ecc8a','#00c8e0','#f0a500','#e85656','#7a90b0'],
+        borderWidth: 0
+        }]
+        },
+        options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+        labels: shipLabels,
+        datasets: [{
+        label: 'Shipments',
+        data: shipCounts,
+        backgroundColor: 'rgba(240,165,0,0.7)',
+        borderRadius: 5
+        }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+}

@@ -1,0 +1,115 @@
+﻿@model ShipmentManagement.ViewModels.Shipment.ShipmentStatusUpdateViewModel
+@{
+    ViewData["Title"] = "Update Status";
+    ViewData["Breadcrumb"] = $@"
+        <a href='/Dashboard'>Home</a>
+        <span class='bc-sep'>›</span>
+        <a href='/Shipment'>Shipment List</a>
+        <span class='bc-sep'>›</span>
+        <span class='bc-current'>Update Status</span>
+    ";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Update Shipment Status</div>
+        <div class="page-sub">@Model.ShipmentCode — @Model.Route</div>
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.Id"
+           class="btn-secondary-custom">
+        <i class="bi bi-arrow-left"></i> Back to Details
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <!-- Current Status Info -->
+        <div class="card mb-3">
+            <div class="row g-3">
+                <div class="col-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:5px;">
+                        Shipment ID
+                    </div>
+                    <div class="td-mono">@Model.ShipmentCode</div>
+                </div>
+                <div class="col-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:5px;">
+                        Customer
+                    </div>
+                    <div style="font-size:13px">@Model.CustomerName</div>
+                </div>
+                <div class="col-4">
+                    <div style="font-size:10px;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:1px;
+                        margin-bottom:5px;">
+                        Current Status
+                    </div>
+                    <span class="badge badge-info">@Model.CurrentStatus</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update Form -->
+        <form asp-action="UpdateStatus" method="post" class="page-fade">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ShipmentCode" />
+            <input type="hidden" asp-for="CustomerName" />
+            <input type="hidden" asp-for="Route" />
+            <input type="hidden" asp-for="CurrentStatus" />
+
+            <div class="form-card">
+                <span class="form-section-label">🔄 Status Update</span>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="field-label" asp-for="NewStatus">
+                            New Status
+                        </label>
+                        <select asp-for="NewStatus"
+                                asp-items="Model.StatusList"
+                                class="field-select">
+                        </select>
+                        <span asp-validation-for="NewStatus"
+                              class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="field-label">Updated Date</label>
+                        <div class="field-auto">
+                            @DateTime.Now.ToString("dd MMM yyyy · hh:mm tt") (Auto)
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="field-label" asp-for="CurrentLocation">
+                            Current Location
+                        </label>
+                        <input asp-for="CurrentLocation"
+                               class="field-input"
+                               placeholder="e.g. Arabian Sea, 24.5°N 67.3°E" />
+                    </div>
+                    <div class="col-12">
+                        <label class="field-label" asp-for="Remarks">
+                            Remarks
+                        </label>
+                        <textarea asp-for="Remarks"
+                                  class="field-textarea"
+                                      placeholder="Any delay reason, port notes...">
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="Details" asp-route-id="@Model.Id"
+                           class="btn-secondary-custom">✕ Cancel</a>
+                        <button type="submit" class="btn-primary-custom">
+                            🔄 Update Status
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>

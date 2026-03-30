@@ -1,0 +1,174 @@
+﻿@model ShipmentManagement.ViewModels.Ship.ShipListViewModel
+@{
+    ViewData["Title"] = "Ship Master";
+    ViewData["FormTitle"] = @"
+        <a href='/Dashboard'>Home</a>
+        <span class='bc-sep'>›</span>
+        <span class='bc-current'>Ship Master</span>
+    ";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Ship Master</div>
+        <div class="page-sub">Manage your entire fleet of vessels</div>
+    </div>
+    <a asp-action="Create" class="btn-primary-custom">
+        <i class="bi bi-plus-lg"></i> Add New Ship
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--cyan)">
+            <div class="stat-icon" style="background:rgba(0,200,224,0.1);color:var(--cyan)">
+                <i class="bi bi-tsunami fs-5"></i>
+            </div>
+            <div class="stat-value">@Model.TotalShips</div>
+            <div class="stat-label">Total Ships</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--success)">
+            <div class="stat-icon" style="background:rgba(46,204,138,0.1);color:var(--success)">
+                <i class="bi bi-check-circle fs-5"></i>
+            </div>
+            <div class="stat-value">@Model.ActiveShips</div>
+            <div class="stat-label">Active</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--warning)">
+            <div class="stat-icon" style="background:rgba(245,166,35,0.1);color:var(--warning)">
+                <i class="bi bi-tools fs-5"></i>
+            </div>
+            <div class="stat-value">@Model.MaintenanceShips</div>
+            <div class="stat-label">Maintenance</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="--accent:var(--danger)">
+            <div class="stat-icon" style="background:rgba(232,86,86,0.1);color:var(--danger)">
+                <i class="bi bi-x-circle fs-5"></i>
+            </div>
+            <div class="stat-value">@Model.InactiveShips</div>
+            <div class="stat-label">Inactive</div>
+        </div>
+    </div>
+</div>
+
+<div class="table-card page-fade">
+    <div class="table-toolbar">
+        <span class="table-toolbar-title">Fleet Registry</span>
+
+        <!-- Search & Filter Form -->
+        <form method="get" asp-action="Index"
+              style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" value="@Model.SearchTerm"
+                       class="search-input" placeholder="Search ships..." />
+            </div>
+            <select name="filterType" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Types</option>
+                <option value="Bulk Carrier" selected="@(Model.FilterType == "Bulk Carrier")">Bulk Carrier</option>
+                <option value="Container" selected="@(Model.FilterType == "Container")">Container</option>
+                <option value="Tanker" selected="@(Model.FilterType == "Tanker")">Tanker</option>
+                <option value="Cargo" selected="@(Model.FilterType == "Cargo")">Cargo</option>
+                <option value="RoRo" selected="@(Model.FilterType == "RoRo")">RoRo</option>
+            </select>
+            <button type="submit" class="btn-secondary-custom">
+                <i class="bi bi-funnel"></i> Filter
+            </button>
+            @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.FilterType))
+            {
+                <a asp-action="Index" class="btn-secondary-custom">
+                    <i class="bi bi-x"></i> Clear
+                </a>
+            }
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ship Code</th>
+                    <th>Ship Name</th>
+                    <th>IMO Number</th>
+                    <th>Type</th>
+                    <th>Capacity (MT)</th>
+                    <th>Flag</th>
+                    <th>Built</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Ships.Any())
+                {
+                    <tr>
+                        <td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">
+                            <i class="bi bi-tsunami" style="font-size:32px;display:block;margin-bottom:10px"></i>
+                            No ships found. <a asp-action="Create" style="color:var(--amber)">Add your first ship</a>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    int i = 1;
+                    @foreach (var ship in Model.Ships)
+                    {
+                        <tr>
+                            <td style="color:var(--text-muted)">@i</td>
+                            <td><span class="td-mono">@ship.ShipCode</span></td>
+                            <td>
+                                <b>@ship.ShipName</b>
+                            </td>
+                            <td><span class="font-mono">@ship.ImoNumber</span></td>
+                            <td>@ship.ShipType</td>
+                            <td class="font-mono">@ship.CapacityMT.ToString("N0")</td>
+                            <td>@ship.FlagCountry</td>
+                            <td>@ship.YearBuilt</td>
+                            <td>
+                                @switch (ship.Status.ToString())
+                                {
+                                    case "Active":
+                                        <span class="badge badge-success">● Active</span>
+                                        break;
+                                    case "Maintenance":
+                                        <span class="badge badge-warning">⚙ Maintenance</span>
+                                        break;
+                                    default:
+                                        <span class="badge badge-neutral">○ Inactive</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:6px;">
+                                    <a asp-action="Edit" asp-route-id="@ship.Id" class="btn-edit">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@ship.Id"
+                                          method="post" style="display:inline"
+                                          onsubmit="return confirm('Delete @ship.ShipName?')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-delete">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-wrap">
+        <span class="pag-info">Showing @Model.Ships.Count of @Model.TotalShips ships</span>
+    </div>
+</div>

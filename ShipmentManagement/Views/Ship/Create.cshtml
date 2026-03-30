@@ -1,0 +1,101 @@
+﻿@model ShipmentManagement.ViewModels.Ship.ShipCreateViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Ship" : "Add New Ship";
+    ViewData["FormTitle"] = string.Concat(
+        "<a href='/Dashboard'>Home</a>",
+        "<span class='bc-sep'>›</span>",
+        "<a href='/Ship'>Ship Master</a>",
+        "<span class='bc-sep'>›</span>",
+        "<span class='bc-current'>",
+        isEdit ? "Edit Ship" : "Add New Ship",
+        "</span>"
+    );
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">@(isEdit ? "Edit Ship" : "Add New Ship")</div>
+        <div class="page-sub">@(isEdit ? "Update vessel details" : "Register a new vessel to the fleet")</div>
+    </div>
+    <a asp-action="Index" class="btn-secondary-custom">
+        <i class="bi bi-arrow-left"></i> Back to Fleet
+    </a>
+</div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post" class="page-fade">
+    @Html.AntiForgeryToken()
+    @if (isEdit)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <div class="form-card">
+        <span class="form-section-label">🚢 Vessel Information</span>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label class="field-label" asp-for="ShipCode">Ship Code</label>
+                <input asp-for="ShipCode" class="field-input"
+                       placeholder="e.g. S006" style="text-transform:uppercase" />
+                <span asp-validation-for="ShipCode" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-5">
+                <label class="field-label" asp-for="ShipName">Ship Name</label>
+                <input asp-for="ShipName" class="field-input" placeholder="e.g. MV Discovery" />
+                <span asp-validation-for="ShipName" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="ImoNumber">IMO Number</label>
+                <input asp-for="ImoNumber" class="field-input" placeholder="e.g. 9876543" />
+                <span asp-validation-for="ImoNumber" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="ShipType">Ship Type</label>
+                <select asp-for="ShipType"
+                        asp-items="Model.ShipTypes"
+                        class="field-select">
+                    <option value="">— Select Type —</option>
+                </select>
+                <span asp-validation-for="ShipType" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="CapacityMT">Capacity (MT)</label>
+                <input asp-for="CapacityMT" type="number" step="0.01"
+                       class="field-input" placeholder="e.g. 52000" />
+                <span asp-validation-for="CapacityMT" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="field-label" asp-for="YearBuilt">Year Built</label>
+                <input asp-for="YearBuilt" type="number"
+                       class="field-input" placeholder="e.g. 2020"
+                       min="1900" max="2100" />
+                <span asp-validation-for="YearBuilt" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="field-label" asp-for="FlagCountry">Flag Country</label>
+                <select asp-for="FlagCountry"
+                        asp-items="Model.Countries"
+                        class="field-select">
+                    <option value="">— Select Country —</option>
+                </select>
+                <span asp-validation-for="FlagCountry" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="field-label" asp-for="Status">Status</label>
+                <select asp-for="Status"
+                        asp-items="Model.StatusList"
+                        class="field-select">
+                </select>
+                <span asp-validation-for="Status" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-secondary-custom">✕ Cancel</a>
+            <button type="reset" class="btn-secondary-custom">🔄 Reset</button>
+            <button type="submit" class="btn-primary-custom">
+                @(isEdit ? "💾 Update Ship" : "✅ Save Ship")
+            </button>
+        </div>
+    </div>
+</form>
